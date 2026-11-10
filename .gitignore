@@ -1,3 +1,50 @@
+# ---------- Secrets (NEVER commit) ----------
+# Real API keys and SMTP password live here. Share .env.example instead.
 .env
+.env.*
+!.env.example
+
+# ---------- Python virtual environments ----------
+.venv/
+venv/
+env/
+ENV/
+
+# ---------- Python cache / build files ----------
 __pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# ---------- Tests and coverage ----------
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# ---------- App data (created at runtime) ----------
+# SQLite database: local tickets, AI results, alerts. Re-created automatically on first run.
 data/*.db
+data/*.db-journal
+data/*.db-wal
+data/*.db-shm
+data/*_backup.db
+# Keep the sample data that seeds the database:
+!data/tickets.json
+!data/test_tickets.json
+!data/categories.json
+!data/kb.json
+
+# ---------- Logs ----------
+*.log
+
+# ---------- Editors / IDE ----------
+.vscode/
+.idea/
+*.swp
+
+# ---------- OS files ----------
+.DS_Store
+Thumbs.db
+desktop.ini
