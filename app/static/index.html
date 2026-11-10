@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SmartQueue</title>
+<style>
+:root{--bg:#EDF0F3;--panel:#fff;--ink:#17202B;--mute:#5C6877;--line:#D5DBE2;--acc:#0B6A88;--p1:#B8321D;--p2:#C9801A;--p3:#3F7A8C;--p4:#8892A0;color-scheme:light}
+@media(prefers-color-scheme:dark){:root{--bg:#12171D;--panel:#1A2129;--ink:#E6EBF0;--mute:#9AA6B4;--line:#2C3743;--acc:#4FB3D1;--p1:#EF6B52;--p2:#E3A24A;--p3:#6DB0C2;--p4:#8892A0;color-scheme:dark}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+header{display:flex;flex-wrap:wrap;gap:12px 32px;align-items:flex-end;padding:20px 24px 12px}
+h1{margin:0;font-size:24px;letter-spacing:-.02em}h1 small{display:block;font-size:13px;font-weight:400;color:var(--mute);letter-spacing:0}
+.stats{display:flex;flex-wrap:wrap;gap:0;margin-left:auto}.stat{padding:0 18px;border-left:1px solid var(--line)}.stat b{display:block;font-size:26px;line-height:1.1;font-variant-numeric:tabular-nums}.stat span{font-size:12.5px;color:var(--mute)}
+.banner{margin:0 24px 12px;padding:10px 14px;background:var(--p1);color:#fff;border-radius:6px;display:none}.banner button{margin-left:10px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;padding:0 24px 12px;align-items:center}
+select,input,textarea,button{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:6px 9px}
+button{cursor:pointer}button.pri{background:var(--acc);border-color:var(--acc);color:#fff}button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible,tr:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+main{display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:16px;padding:0 24px 40px;align-items:start}
+@media(max-width:980px){main{grid-template-columns:1fr}.stats{margin-left:0}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:auto}
+table{width:100%;border-collapse:collapse}th{text-align:left;font-weight:600;font-size:13px;color:var(--mute);padding:9px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}tr.row{cursor:pointer;border-left:4px solid var(--p4)}tr.row:hover,tr.sel{background:color-mix(in srgb,var(--acc) 8%,transparent)}
+tr.P1{border-left-color:var(--p1)}tr.P2{border-left-color:var(--p2)}tr.P3{border-left-color:var(--p3)}
+.pr{font-weight:700}.P1 .pr{color:var(--p1)}.P2 .pr{color:var(--p2)}.late{color:var(--p1);font-weight:600}.mute{color:var(--mute);font-size:13px}.tag{display:inline-block;font-size:12px;padding:1px 7px;border:1px solid var(--line);border-radius:10px;margin-right:4px}.tag.inc{background:var(--p1);color:#fff;border-color:var(--p1)}
+#detail{position:sticky;top:12px;padding:16px;max-height:calc(100vh - 24px)}#detail h2{margin:0 0 2px;font-size:18px}#detail h3{margin:16px 0 6px;font-size:14px}
+.why{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px dashed var(--line)}textarea{width:100%;min-height:150px;resize:vertical}
+details{margin:0 24px 16px}summary{cursor:pointer;color:var(--acc);font-weight:600}.forms{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:10px}.forms form{display:grid;gap:6px;padding:12px;background:var(--panel);border:1px solid var(--line);border-radius:8px}
+.empty{padding:40px;text-align:center;color:var(--mute)}
+.chatbtn{align-self:center;background:var(--acc);color:#fff;text-decoration:none;font-weight:600;padding:8px 16px;border-radius:8px}.chatbtn:hover{filter:brightness(1.1)}.chatbtn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+@media(prefers-reduced-motion:no-preference){tr.row{transition:background .12s}}
+</style></head><body>
+<header><h1>SmartQueue<small>Support triage for the Yottaflex desk. <span id="mode"></span></small></h1><a href="/chat" class="chatbtn">💬 AI Chat</a><div class="stats" id="stats"></div></header>
+<div class="banner" id="banner" role="alert"></div>
+<div class="bar">
+ <select id="fp" aria-label="Priority"><option value="">All priorities</option><option>P1</option><option>P2</option><option>P3</option><option>P4</option></select>
+ <select id="fc" aria-label="Category"></select><select id="ft" aria-label="Team"></select>
+ <label class="mute"><input type="checkbox" id="fb"> SLA breached only</label>
+ <button id="bf" title="Send tickets without an AI result to the model">Triage all with AI</button><input id="fq" placeholder="Search tickets" aria-label="Search tickets" style="flex:1;min-width:160px">
+</div>
+<details><summary>Add a ticket or a category</summary><div class="forms">
+ <form id="nt"><b>New ticket</b><input name="customer_name" placeholder="Customer name"><select name="plan_tier"><option>free</option><option>pro</option><option>enterprise</option></select><select name="channel"><option>email</option><option>chat</option><option>twitter</option></select><input name="subject" placeholder="Subject" required><textarea name="body" placeholder="Message" required style="min-height:70px"></textarea><button class="pri">Add ticket</button></form>
+ <form id="nc"><b>New category (live, no redeploy)</b><input name="name" placeholder="Category name, e.g. security" required><input name="keywords" placeholder="Keywords, comma separated" required><input name="team" placeholder="Team, e.g. Security"><select name="base"><option value="0">Base priority 0</option><option value="2">Base priority 2</option><option value="3">Base priority 3</option></select><button class="pri">Add category</button><button type="button" id="reset">Reset demo data</button></form>
+</div></details>
+<main><div class="panel"><table><thead><tr><th>Pri</th><th>Ticket</th><th>Category</th><th>Team</th><th>SLA</th></tr></thead><tbody id="rows"></tbody></table></div>
+<aside class="panel" id="detail"><div class="empty">Select a ticket to see why it was ranked, who gets it, and a suggested reply.</div></aside></main>
+<script>
+let D=null,sel=null;const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const nice=s=>s.replace(/_/g,' ');
+const sla=t=>{const m=Math.abs(t.sla_minutes_left),h=Math.floor(m/60),s=h?`${h}h ${m%60}m`:`${m}m`;return t.breached?`<span class="late">${s} late</span>`:`${s} left`};
+async function api(p,b){const r=await fetch(p,b?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)}:{});const j=await r.json();if(!r.ok)alert(typeof j.detail==='string'?j.detail:JSON.stringify(j.detail||j));return j}
+async function load(){D=await api('/api/tickets');fill();render()}
+function fill(){const keep=(id,arr,all)=>{const e=$(id),v=e.value;e.innerHTML=`<option value="">${all}</option>`+arr.map(x=>`<option value="${esc(x)}">${esc(nice(x))}</option>`).join('');e.value=v};
+ keep('#fc',D.categories,'All categories');keep('#ft',[...new Set(D.tickets.map(t=>t.team))].sort(),'All teams');
+ const s=D.stats,p=s.by_priority;$('#stats').innerHTML=[['P1 open',p.P1||0],['P2 open',p.P2||0],['SLA breached',s.breached],['Incidents',s.incidents.length],['AI triaged',s.ai_triaged],['Learned terms',s.learned_terms]].map(([l,v])=>`<div class="stat"><b>${v}</b><span>${l}</span></div>`).join('');
+ $('#mode').textContent=s.llm?`AI triage on (${s.model})`:'AI triage off, using rules';const b=$('#banner');if(s.incidents.length){const i=s.incidents[0];b.style.display='block';b.innerHTML=`Possible incident: ${i.size} customers report "${esc(i.title)}". <button id="vi">Show only these</button>`;$('#vi').onclick=()=>{$('#fq').value='';window.incOnly=i.id;render()}}else b.style.display='none'}
+function view(){const p=$('#fp').value,c=$('#fc').value,t=$('#ft').value,q=$('#fq').value.toLowerCase(),b=$('#fb').checked;
+ return D.tickets.filter(x=>(!p||x.priority==p)&&(!c||x.category==c)&&(!t||x.team==t)&&(!b||x.breached)&&(!window.incOnly||x.incident==window.incOnly)&&(!q||(x.subject+x.body+x.customer).toLowerCase().includes(q)))}
+function render(){const v=view();$('#rows').innerHTML=v.length?v.map(x=>`<tr class="row ${x.priority} ${x.id==sel?'sel':''}" tabindex="0" data-id="${x.id}"><td class="pr">${x.priority}</td><td><b>${esc(x.subject)}</b><br><span class="mute">${esc(x.customer)}, ${x.tier}, ${x.channel}</span>${x.incident?` <span class="tag inc">${x.incident}</span>`:''}</td><td>${nice(x.category)}<br><span class="mute">${x.source}, ${Math.round(x.confidence*100)}%</span></td><td>${esc(x.team)}</td><td>${sla(x)}</td></tr>`).join(''):`<tr><td colspan="5" class="empty">No tickets match these filters. Clear a filter to see the full queue.</td></tr>`;
+ document.querySelectorAll('tr.row').forEach(r=>{r.onclick=()=>{sel=r.dataset.id;render();detail()};r.onkeydown=e=>{if(e.key=='Enter')r.onclick()}});if(sel)detail()}
+function detail(){const x=D.tickets.find(t=>t.id==sel);if(!x)return;
+ $('#detail').innerHTML=`<h2>${esc(x.subject)}</h2><div class="mute">${x.id}, ${esc(x.customer)}, ${x.tier} plan, via ${x.channel}</div><p>${esc(x.body)}</p>${x.summary?`<div class="mute">AI summary: ${esc(x.summary)}${x.language?` (${esc(x.language)})`:''}</div>`:''}
+ <h3>Why ${x.priority} (score ${x.score})</h3>${x.reasons.map(r=>`<div class="why"><span>${esc(r.label)}</span><b>+${r.points}</b></div>`).join('')||'<div class="mute">No urgency signals found.</div>'}
+ <h3>Routing</h3><div>${esc(x.route_reason)}</div>
+ <h3>Category: ${nice(x.category)}</h3><div class="mute">${x.keywords.length?'Matched: '+x.keywords.map(esc).join(', '):'Source: '+x.source}</div>
+ <div style="margin-top:8px"><select id="cc">${D.categories.map(c=>`<option ${c==x.category?'selected':''} value="${c}">${nice(c)}</option>`).join('')}</select> <button id="fix">Correct label</button></div>
+ <h3>Suggested reply <span class="mute">(${x.reply_source=='llm'?'AI draft':'knowledge base'})</span></h3><textarea id="rp">${esc(x.reply)}</textarea><div style="margin-top:6px"><button id="cp" class="pri">Copy reply</button> <button id="rd">Redraft with AI</button> <button id="rt">Re-triage with AI</button></div>`;
+ $('#fix').onclick=async()=>{await api('/api/feedback',{ticket_id:x.id,category:$('#cc').value});await load()};
+ $('#rd').onclick=async()=>{const r=await api('/api/tickets/'+x.id+'/draft',{});if(r.reply){$('#rp').value=r.reply;if(r.source!=='llm')alert('AI is off or unavailable, showing the knowledge base reply.')}};
+ $('#rt').onclick=async()=>{const r=await api('/api/tickets/'+x.id+'/retriage',{});if(!r.llm)alert('AI triage is off. Set ANTHROPIC_API_KEY and restart.');else if(!r.ok)alert('The AI could not triage this ticket, so rules are being used.');await load()};
+ $('#cp').onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText($('#rp').value);$('#cp').textContent='Copied'}}
+['#fp','#fc','#ft','#fb'].forEach(i=>$(i).onchange=()=>{window.incOnly=null;render()});$('#fq').oninput=()=>{window.incOnly=null;render()};
+$('#nt').onsubmit=async e=>{e.preventDefault();await api('/api/tickets',Object.fromEntries(new FormData(e.target)));e.target.reset();load()};
+$('#nc').onsubmit=async e=>{e.preventDefault();const r=await api('/api/categories',Object.fromEntries(new FormData(e.target)));if(r.name){e.target.reset();load()}};
+$('#bf').onclick=async()=>{const r=await api('/api/triage/backfill',{});if(r.status)alert('Started. Results appear as the model finishes; the queue refreshes every 30 seconds.')};
+$('#reset').onclick=async()=>{if(confirm('Clear learned labels, corrections and custom categories?')){await api('/api/reset',{});sel=null;load()}};
+load();setInterval(load,30000);
+</script></body></html>

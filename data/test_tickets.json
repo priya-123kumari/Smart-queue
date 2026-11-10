@@ -1,0 +1,102 @@
+[
+ {
+  "subject": "Unexpected deduction on my card",
+  "body": "There is a charge on my card I don't recognise, refund this please.",
+  "true_category": "billing"
+ },
+ {
+  "subject": "Need a receipt for last quarter",
+  "body": "Please send the receipt and invoice for the payment made in March.",
+  "true_category": "billing"
+ },
+ {
+  "subject": "Upload fails with error",
+  "body": "File upload fails every time with error 413, broken since Monday.",
+  "true_category": "bug"
+ },
+ {
+  "subject": "Page is not loading",
+  "body": "The reports page is not loading and the spinner is stuck.",
+  "true_category": "bug"
+ },
+ {
+  "subject": "App crashing on iPad",
+  "body": "It crashes immediately when I open it.",
+  "true_category": "bug"
+ },
+ {
+  "subject": "Suggestion: calendar sync",
+  "body": "It would be nice to have a Google Calendar integration.",
+  "true_category": "feature_request"
+ },
+ {
+  "subject": "Wish list",
+  "body": "Please add support for exporting to PDF.",
+  "true_category": "feature_request"
+ },
+ {
+  "subject": "Custom fields",
+  "body": "Can you add custom fields to the contact form? Feature request.",
+  "true_category": "feature_request"
+ },
+ {
+  "subject": "Unable to sign in",
+  "body": "I cannot access my account, getting a locked message.",
+  "true_category": "account_access"
+ },
+ {
+  "subject": "OTP not received",
+  "body": "The otp never arrives on my phone when I sign in.",
+  "true_category": "account_access"
+ },
+ {
+  "subject": "Reset link expired",
+  "body": "My password reset link expired and I'm locked out.",
+  "true_category": "account_access"
+ },
+ {
+  "subject": "How to add a new project?",
+  "body": "How do I add a new project and set up folders?",
+  "true_category": "how_to"
+ },
+ {
+  "subject": "Where can I find API docs?",
+  "body": "Where can I find the guide for the API? Looking for a tutorial.",
+  "true_category": "how_to"
+ },
+ {
+  "subject": "Steps to enable reports",
+  "body": "What are the steps to turn on weekly reports? How can I schedule them?",
+  "true_category": "how_to"
+ },
+ {
+  "subject": "Partnership inquiry",
+  "body": "We run an agency and would like to discuss partnership opportunities.",
+  "true_category": "other"
+ },
+ {
+  "subject": "Thank you!",
+  "body": "Just wanted to say the team was lovely last week.",
+  "true_category": "other"
+ },
+ {
+  "subject": "Report download nahi ho raha",
+  "body": "Report download nahi chal raha, error aa raha hai bug lagta hai.",
+  "true_category": "bug"
+ },
+ {
+  "subject": "Refund kab milega",
+  "body": "Mera paisa wapas chahiye, invoice bhi bhejiye.",
+  "true_category": "billing"
+ },
+ {
+  "subject": "Cant sing in",
+  "body": "pasword not working, acount locked",
+  "true_category": "account_access"
+ },
+ {
+  "subject": "Invoice kaise download karein",
+  "body": "Invoice kaise download karein? Guide chahiye.",
+  "true_category": "how_to"
+ }
+]

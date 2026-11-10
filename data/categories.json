@@ -1,0 +1,7 @@
+{
+ "billing": {"team": "Billing", "base": 1, "keywords": ["invoice","charged","charge","refund","billing","payment","subscription","receipt","double charged","overcharged","paisa","paise","credit card","price","deduction","gst"]},
+ "bug": {"team": "Engineering", "base": 2, "keywords": ["error","crash","crashes","crashing","bug","broken","not working","doesn't work","fails","failed","failing","slow","timeout","500","kaam nahi kar raha","nahi chal raha","kharab","not loading","glitch","stuck","issue","misaligned"]},
+ "feature_request": {"team": "Success", "base": 0, "keywords": ["feature request","would be great","please add","can you add","wish","would be nice","suggestion","integration","dark mode","support for","add option","roadmap"]},
+ "account_access": {"team": "Support L1", "base": 2, "keywords": ["login","log in","password","locked","can't access","cannot access","2fa","two-factor","sign in","otp","bhool","access nahi","suspended","verification code","locked out"]},
+ "how_to": {"team": "Support L1", "base": 0, "keywords": ["how do i","how to","how can i","where can i","kaise","tutorial","guide","steps to","is it possible","set up","configure","what are the steps"]}
+}

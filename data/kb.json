@@ -1,0 +1,8 @@
+[
+ {"id":"KB-1","title":"Duplicate charge","keywords":["charged twice","double charged","refund","deduction","paisa"],"answer":"Sorry about the duplicate charge. We've flagged it to Billing and refunds typically reach your card within 5-7 business days."},
+ {"id":"KB-2","title":"Invoices and receipts","keywords":["invoice","receipt","gst"],"answer":"You can download invoices from Settings > Billing > History. If you need GST details added, send us your GST number and we'll reissue it."},
+ {"id":"KB-3","title":"Locked account","keywords":["locked","login","sign in","otp","verification code","password"],"answer":"Please use 'Forgot password' on the sign-in page. If the code or email doesn't arrive within 5 minutes, check spam; we'll unlock your account manually once you confirm your email."},
+ {"id":"KB-4","title":"Invite teammates","keywords":["invite","teammates","add new","kaise add"],"answer":"Go to Settings > Members > Invite, enter their emails and pick a role. They'll get an invite link valid for 7 days."},
+ {"id":"KB-5","title":"Exports and reports","keywords":["export","reports","download","csv"],"answer":"Reports can be exported from Reports > Export. Scheduled exports are available on Pro and Enterprise under Reports > Schedule."},
+ {"id":"KB-6","title":"Notifications setup","keywords":["notifications","configure","email notifications"],"answer":"Open Settings > Notifications to choose which events email you or your team, and how often."}
+]

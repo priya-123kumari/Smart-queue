@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SmartQueue Chat</title>
+<style>
+:root{--bg:#EDF0F3;--panel:#fff;--ink:#17202B;--mute:#5C6877;--line:#D5DBE2;--acc:#0B6A88;--me:#0B6A88;--meink:#fff;--warn:#C9801A;color-scheme:light}
+@media(prefers-color-scheme:dark){:root{--bg:#12171D;--panel:#1A2129;--ink:#E6EBF0;--mute:#9AA6B4;--line:#2C3743;--acc:#4FB3D1;--me:#1F5F74;--meink:#fff;--warn:#E3A24A;color-scheme:dark}}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;display:flex;flex-direction:column}
+header{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:flex-end;padding:18px 24px 12px;border-bottom:1px solid var(--line)}
+h1{margin:0;font-size:22px;letter-spacing:-.02em}h1 small{display:block;font-size:13px;font-weight:400;color:var(--mute);letter-spacing:0}
+header nav{margin-left:auto;display:flex;gap:10px;align-items:center}
+a{color:var(--acc)}
+button,textarea{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:8px}
+button{cursor:pointer;padding:7px 12px}button.pri{background:var(--acc);border-color:var(--acc);color:#fff}button:disabled{opacity:.55;cursor:default}
+button:focus-visible,textarea:focus-visible,a:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+#log{flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:14px;max-width:860px;width:100%;margin:0 auto}
+.msg{max-width:85%;padding:10px 14px;border-radius:12px;white-space:pre-wrap;word-wrap:break-word}
+.user{align-self:flex-end;background:var(--me);color:var(--meink);border-bottom-right-radius:4px}
+.bot{align-self:flex-start;background:var(--panel);border:1px solid var(--line);border-bottom-left-radius:4px}
+.meta{font-size:12px;color:var(--mute);margin-top:6px;white-space:normal}.meta .rules{color:var(--warn);font-weight:600}
+.tid{color:var(--acc);font-weight:600;text-decoration:none;border-bottom:1px dotted var(--acc)}
+.intro{align-self:stretch;text-align:center;color:var(--mute);padding:24px 8px}
+.intro h2{color:var(--ink);font-size:18px;margin:0 0 6px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px}.chips button{font-size:13.5px;border-radius:16px}
+.typing{color:var(--mute);font-style:italic}
+form{display:flex;gap:8px;padding:12px 24px 18px;max-width:860px;width:100%;margin:0 auto}
+textarea{flex:1;resize:none;padding:10px 12px;min-height:46px;max-height:160px}
+@media(max-width:600px){header,#log,form{padding-left:16px;padding-right:16px}.msg{max-width:95%}}
+</style></head><body>
+<header><h1>SmartQueue Assistant<small>Ask about tickets, customers, the queue or the knowledge base. <span id="mode"></span></small></h1>
+<nav><button id="clear" type="button">New chat</button><a href="/">Dashboard</a></nav></header>
+<main id="log" aria-live="polite"></main>
+<form id="f"><textarea id="q" rows="1" placeholder="e.g. Which P1 tickets are breaching SLA?" aria-label="Your message" maxlength="4000"></textarea><button class="pri" id="send">Send</button></form>
+<script>
+const $=s=>document.querySelector(s), log=$('#log'), q=$('#q');
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const EXAMPLES=["Which P1 tickets need attention?","Give me a queue overview","Summarize ticket T-1027","Show tickets from Ravi","Any tickets breaching SLA?","How do we handle a duplicate charge?"];
+let history=[]; try{history=JSON.parse(sessionStorage.getItem('sq_chat')||'[]')}catch(e){history=[]}
+const save=()=>{try{sessionStorage.setItem('sq_chat',JSON.stringify(history))}catch(e){}};
+// Escape first, then apply a tiny safe subset of markdown (bold, headings, bullets) and link ticket IDs.
+const linkify=t=>esc(t).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/^#{1,4}\s*(.+)$/gm,'<b>$1</b>').replace(/^\s*[-*]\s+/gm,'• ')
+ .replace(/\bT-\d{3,6}x*\b/gi,m=>`<a class="tid" href="/api/tickets/${m.toUpperCase()}" target="_blank" rel="noopener">${m}</a>`);
+function bubble(role,text,meta){const d=document.createElement('div');d.className='msg '+(role==='user'?'user':'bot');d.innerHTML=role==='user'?esc(text):linkify(text);
+ if(meta){const m=document.createElement('div');m.className='meta';m.innerHTML=meta;d.appendChild(m)}log.appendChild(d);log.scrollTop=log.scrollHeight;return d}
+function metaFor(r){const t=(r.tools||[]).filter(x=>x.tool).map(x=>esc(x.tool)); const src=r.mode==='llm'?'AI':'<span class="rules">basic mode (AI unavailable)</span>';
+ return src+(t.length?' · looked up: '+[...new Set(t)].join(', '):'')}
+function intro(){log.innerHTML=`<div class="intro"><h2>What do you want to know?</h2>The assistant reads live queue data. It can't send emails or change tickets.<div class="chips">${EXAMPLES.map(e=>`<button type="button">${esc(e)}</button>`).join('')}</div></div>`;
+ log.querySelectorAll('.chips button').forEach(b=>b.onclick=()=>{q.value=b.textContent;send()})}
+function render(){if(!history.length)return intro();log.innerHTML='';history.forEach(m=>bubble(m.role,m.content,m.meta))}
+async function send(){const text=q.value.trim();if(!text||$('#send').disabled)return;
+ if(!history.length)log.innerHTML='';history.push({role:'user',content:text});bubble('user',text);q.value='';q.style.height='';save();
+ $('#send').disabled=true;const wait=bubble('bot','Thinking… (a local model can take 20-60 seconds)');wait.classList.add('typing');
+ try{const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:history.map(({role,content})=>({role,content}))})});
+  const d=await r.json();wait.remove();
+  if(!r.ok){bubble('bot','Error: '+(typeof d.detail==='string'?d.detail:JSON.stringify(d.detail||d)));history.pop();save();return}
+  const meta=metaFor(d);history.push({role:'assistant',content:d.reply||'(no answer)',meta});bubble('assistant',d.reply||'(no answer)',meta);save()}
+ catch(e){wait.remove();bubble('bot','Could not reach the server. Is uvicorn running?');history.pop();save()}
+ finally{$('#send').disabled=false;q.focus()}}
+$('#f').onsubmit=e=>{e.preventDefault();send()};
+q.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}});
+q.addEventListener('input',()=>{q.style.height='';q.style.height=Math.min(q.scrollHeight,160)+'px'});
+$('#clear').onclick=()=>{history=[];save();intro();q.focus()};
+fetch('/api/health').then(r=>r.json()).then(h=>{$('#mode').textContent=h.llm?`AI: ${h.model}`:'AI off: basic answers only'}).catch(()=>{});
+render();q.focus();
+</script>
+</body></html>
